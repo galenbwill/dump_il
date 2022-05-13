@@ -6,6 +6,8 @@ from .binja_tqdm import tqdm
 
 from .metrics import metrics
 
+from . import log, log_debug, log_info, log_warn, log_error, log_alert
+
 # Simple helpers to dump Binary Ninja IL (primarily HLIL) into the log
 #
 # Can filter to only show "interesting instructions"
@@ -85,7 +87,7 @@ def interesting(i, il, filter=True):
     return False
 
 
-def dump_il_instr(i, il, lines, indent=0, filter=True):
+def dump_il_instr(i, il, lines, indent=0, filter=True, show_il=True):
     # log_debug(f'i: {type(i)} {i!r}')
     if hasattr(i, 'operation'):
         # if 'HLIL_F' in repr(i.operation) and not 'FLOAT_CONV' in repr(i.operation):
@@ -98,6 +100,12 @@ def dump_il_instr(i, il, lines, indent=0, filter=True):
                 dsm = i.function.view.get_disassembly(i.address)
                 if dsm:
                     lines[-1] += ' => ' + dsm
+            if show_il:
+                il_lines = i.lines if il.startswith('hlil') else [str(i)]
+                if il_lines:
+                    # il_lines_str = ('  ' * (indent + 1)).join([str(l).strip() for l in il_lines])
+                    il_lines_str = ['  ' * (indent + 1) + str(l).strip() for l in il_lines]
+                    lines.extend(il_lines_str)
         if hasattr(i, 'operands'):
             for ii in i.operands:
                 if isinstance(ii, BaseILInstruction):
