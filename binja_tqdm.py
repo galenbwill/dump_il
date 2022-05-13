@@ -1,8 +1,9 @@
 from binaryninja import BackgroundTask, log_warn, log_alert
 
-# from glenn
+# from glenn https://github.com/CouleeApps
 
 # Show a progress indicator for consuming an iterator
+# (It's like tqdm but it's not)
 def tqdm(iterator, alert=False):
     bt = BackgroundTask()
     try:

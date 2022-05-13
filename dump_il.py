@@ -6,18 +6,10 @@ from .binja_tqdm import tqdm
 
 from .metrics import metrics
 
-# Note that this is a sample plugin and you may need to manually edit it with
-# additional functionality. In particular, this example only passes in the
-# binary view. If you would like to act on an addres or function you should
-# consider using other register_for* functions.
-
-# Add documentation about UI plugin alternatives and potentially getting
-# current_* functions
-
-
-log = binaryninja.log_info
-
-# @functools.cache
+# Simple helpers to dump Binary Ninja IL (primarily HLIL) into the log
+#
+# Can filter to only show "interesting instructions"
+# Current "interesting" means either floating point HLIL instructions or intrinsics with scalar floating point or numeric vector typed inputs
 
 _interesting_type_cache = dict()
 
@@ -111,6 +103,7 @@ def dump_il_instr(i, il, lines, indent=0, filter=True):
                 if isinstance(ii, BaseILInstruction):
                     dump_il_instr(ii, il, lines, indent + 1)
 
+
 def get_il(func, il):
     if il.endswith('_ssa'):
         il_il = getattr(func, il[:-4])
@@ -144,6 +137,7 @@ def dump_il(h, il='hlil', filter=True):
         dump_il_instr(h, il, lines, 1, filter)
     return lines
 
+
 def dump_il_func(f, il='hlil', alert=True, timeit=True, filter=True):
     @metrics(hms=True, alert=alert, timeit=timeit)
     def _dump_il_func(f, il='hlil', alert=True, filter=True):
@@ -165,4 +159,5 @@ def dump_il_func(f, il='hlil', alert=True, timeit=True, filter=True):
         if lines:
             log_info('\n'.join(lines))
             log_warn(f'{len(lines)} lines')
+
     return _dump_il_func(f, il, alert, filter)
